@@ -1,0 +1,13 @@
+---
+- name: Setup Fedora machine
+  hosts: all
+  gather_facts: false
+  become: true
+  vars_files:
+    - default.config.yml
+  tasks:
+    - name: Install all packages
+      ansible.builtin.import_tasks: tasks/packages.yml
+    
+    - name: Configure services
+      ansible.builtin.import_tasks: tasks/services.yml

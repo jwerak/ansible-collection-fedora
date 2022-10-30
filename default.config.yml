@@ -1,0 +1,46 @@
+---
+rpm_keys_import:
+  - https://packages.microsoft.com/keys/microsoft.asc
+
+rpm_repositories_create:
+  - name: Visual Studio Code
+    description: Visual Studio Code Repository
+    baseurl: https://packages.microsoft.com/yumrepos/vscode
+    enabled: true
+    gpgcheck: true
+    gpgkey: https://packages.microsoft.com/keys/microsoft.asc
+    file: vscode
+
+rpm_repositories_enable:
+  - google-chrome
+
+rpm_packages:
+  - tmux
+  - fzf
+  - xclip
+  - git
+  - zsh
+  - google-chrome-stable
+  - code
+  - datovka
+  - '@Container Management'
+  - '@virtualization'
+
+flatpak_packages:
+  - com.dropbox.Client
+  - com.getmailspring.Mailspring
+  - com.github.junrrein.PDFSlicer
+  - com.github.tchx84.Flatseal
+  - io.podman_desktop.PodmanDesktop
+  - net.xmind.XMind
+  - org.gnome.Extensions
+  - org.mozilla.Thunderbird
+  - org.signal.Signal
+  - org.telegram.desktop
+  - us.zoom.Zoom
+
+systemd_services:
+  - name: libvirtd
+    state: started
+    enabled: true
+    scope: system

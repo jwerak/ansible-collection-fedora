@@ -1,0 +1,33 @@
+---
+- name: Import rpm keys
+  ansible.builtin.rpm_key:
+    state: present
+    key: "{{ item }}"
+  with_items: "{{ rpm_keys_import }}"
+
+- name: Create RPM repositories
+  ansible.builtin.yum_repository:
+    name: "{{ item.name }}"
+    description: "{{ item.description }}"
+    baseurl: "{{ item.baseurl }}"
+    enabled: "{{ item.enabled }}"
+    gpgcheck: "{{ item.gpgcheck }}"
+    gpgkey: "{{ item.gpgkey }}"
+    file: "{{ item.file | default(omit) }}"
+  with_items: "{{ rpm_repositories_create }}"
+
+- name: Enable third party RPM repositories
+  ansible.builtin.command:
+    cmd: dnf config-manager --set-enabled "{{ item }}"
+    warn: false
+  with_items: "{{ rpm_repositories_enable }}"
+
+- name: Install RPM Packages
+  ansible.builtin.dnf:
+    name: "{{ rpm_packages }}"
+    state: present
+
+- name: Install flatpak packages
+  community.general.packaging.os.flatpak:
+    name: "{{ flatpak_packages }}"
+    state: present
