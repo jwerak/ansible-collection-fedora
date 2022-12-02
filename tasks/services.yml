@@ -7,3 +7,5 @@
     enabled: "{{ item.enabled }}"
     scope: "{{ item.scope }}"
   with_items: "{{ systemd_services }}"
+  tags:
+    - services

@@ -3,7 +3,7 @@ rpm_keys_import:
   - https://packages.microsoft.com/keys/microsoft.asc
 
 rpm_repositories_create:
-  - name: Visual Studio Code
+  - name: vscode
     description: Visual Studio Code Repository
     baseurl: https://packages.microsoft.com/yumrepos/vscode
     enabled: true
@@ -23,24 +23,39 @@ rpm_packages:
   - google-chrome-stable
   - code
   - datovka
+  - at
+  - ffmpeg-free
+  - python3-tracer
+  - gimp
+  - vim-enhanced
+  - emacs
+  - dconf-editor
+  - nmap
   - '@Container Management'
   - '@virtualization'
 
+flatpak_repos:
+  - name: flathub
+    url: https://flathub.org/repo/flathub.flatpakrepo
+
 flatpak_packages:
-  - com.dropbox.Client
-  - com.getmailspring.Mailspring
-  - com.github.junrrein.PDFSlicer
-  - com.github.tchx84.Flatseal
   - io.podman_desktop.PodmanDesktop
-  - net.xmind.XMind
   - org.gnome.Extensions
   - org.mozilla.Thunderbird
   - org.signal.Signal
   - org.telegram.desktop
-  - us.zoom.Zoom
+  - org.videolan.VLC
 
 systemd_services:
   - name: libvirtd
     state: started
     enabled: true
     scope: system
+  - name: atd
+    state: started
+    enabled: true
+    scope: system
+
+gnome_dconf_settings:
+  - key: "/org/gnome/desktop/peripherals/touchpad/tap-to-click"
+    value: "true"

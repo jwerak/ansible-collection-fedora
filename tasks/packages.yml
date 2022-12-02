@@ -3,7 +3,9 @@
   ansible.builtin.rpm_key:
     state: present
     key: "{{ item }}"
-  with_items: "{{ rpm_keys_import }}"
+  loop: "{{ rpm_keys_import }}"
+  tags:
+    - rpm
 
 - name: Create RPM repositories
   ansible.builtin.yum_repository:
@@ -14,20 +16,40 @@
     gpgcheck: "{{ item.gpgcheck }}"
     gpgkey: "{{ item.gpgkey }}"
     file: "{{ item.file | default(omit) }}"
-  with_items: "{{ rpm_repositories_create }}"
+  loop: "{{ rpm_repositories_create }}"
+  tags:
+    - rpm
 
 - name: Enable third party RPM repositories
   ansible.builtin.command:
     cmd: dnf config-manager --set-enabled "{{ item }}"
     warn: false
-  with_items: "{{ rpm_repositories_enable }}"
+  loop: "{{ rpm_repositories_enable }}"
+  tags:
+    - rpm
 
 - name: Install RPM Packages
   ansible.builtin.dnf:
     name: "{{ rpm_packages }}"
+    update_cache: true
     state: present
+  tags:
+    - rpm
+
+- name: Add the flathub flatpak repository remote to the system installation
+  community.general.flatpak_remote:
+    name: "{{ item.name }}"
+    state: present
+    flatpakrepo_url: "{{ item.url }}"
+    method: system
+  loop: "{{ flatpak_repos }}"
+  tags:
+    - flatpak
 
 - name: Install flatpak packages
   community.general.packaging.os.flatpak:
     name: "{{ flatpak_packages }}"
     state: present
+  retries: 3
+  tags:
+    - flatpak
