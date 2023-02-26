@@ -27,6 +27,7 @@
   loop: "{{ rpm_repositories_enable }}"
   tags:
     - rpm
+  changed_when: false
 
 - name: Install RPM Packages
   ansible.builtin.dnf:
