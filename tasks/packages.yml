@@ -23,7 +23,6 @@
 - name: Enable third party RPM repositories
   ansible.builtin.command:
     cmd: dnf config-manager --set-enabled "{{ item }}"
-    warn: false
   loop: "{{ rpm_repositories_enable }}"
   tags:
     - rpm

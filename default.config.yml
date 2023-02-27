@@ -31,6 +31,8 @@ rpm_packages:
   - emacs
   - dconf-editor
   - nmap
+  - plantuml
+  - graphviz
   - '@Container Management'
   - '@virtualization'
 
