@@ -33,6 +33,7 @@ rpm_packages:
   - nmap
   - plantuml
   - graphviz
+  - poppler-utils
   - '@Container Management'
   - '@virtualization'
 
