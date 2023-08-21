@@ -20,6 +20,6 @@
   tasks:
     - name: Configure Gnome
       ansible.builtin.import_tasks: tasks/gnome.yml
-      
+
     - name: Configure SystemD user units
       ansible.builtin.import_tasks: tasks/user-services.yml
