@@ -34,8 +34,8 @@ rpm_packages:
   - plantuml
   - graphviz
   - poppler-utils
-  - '@Container Management'
-  - '@virtualization'
+  - "@Container Management"
+  - "@virtualization"
 
 flatpak_repos:
   - name: flathub
@@ -48,6 +48,8 @@ flatpak_packages:
   - org.signal.Signal
   - org.telegram.desktop
   - org.videolan.VLC
+  - com.synology.SynologyDrive
+  - md.obsidian.Obsidian
 
 systemd_services:
   - name: libvirtd
