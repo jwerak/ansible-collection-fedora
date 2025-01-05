@@ -36,6 +36,13 @@
   tags:
     - rpm
 
+- name: Update all RPM Packages
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+  tags:
+    - rpm
+
 - name: Add the flathub flatpak repository remote to the system installation
   community.general.flatpak_remote:
     name: "{{ item.name }}"
@@ -47,7 +54,7 @@
     - flatpak
 
 - name: Install flatpak packages
-  community.general.packaging.os.flatpak:
+  community.general.flatpak:
     name: "{{ flatpak_packages }}"
     state: present
   retries: 3

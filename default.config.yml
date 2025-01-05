@@ -13,6 +13,9 @@ rpm_repositories_create:
 
 rpm_repositories_enable:
   - google-chrome
+  - copr:copr.fedorainfracloud.org:phracek:PyCharm
+  - rpmfusion-nonfree-nvidia-driver
+  - rpmfusion-nonfree-steam
 
 rpm_packages:
   - tmux
