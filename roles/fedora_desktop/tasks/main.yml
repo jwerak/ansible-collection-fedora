@@ -1,6 +1,6 @@
 ---
 - name: Update dconf settings
-  community.general.system.dconf:
+  community.general.dconf:
     key: "{{ item.key }}"
     value: "{{ item.value }}"
   loop: "{{ gnome_dconf_settings }}"

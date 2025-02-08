@@ -53,6 +53,7 @@ flatpak_packages:
   - org.videolan.VLC
   - com.synology.SynologyDrive
   - md.obsidian.Obsidian
+  - com.slack.Slack
 
 systemd_services:
   - name: libvirtd
