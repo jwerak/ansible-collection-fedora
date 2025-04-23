@@ -1,0 +1,34 @@
+---
+- name: Create variable for local user systemd base path
+  ansible.builtin.set_fact:
+    user_systemd_base_path: "{{ ansible_user_dir }}/.local/share/systemd/user"
+
+- name: Create directory for user systemd unit files
+  ansible.builtin.file:
+    path: "{{ user_systemd_base_path }}"
+    state: directory
+    mode: "0750"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid }}"
+
+- name: Create user systemd unit named synologydrive
+  ansible.builtin.copy:
+    content: |
+      [Service]
+      Type=oneshot
+      RemainAfterExit=true
+      StandardOutput=journal
+      ExecStartPre=/usr/bin/sleep 2s
+      ExecStart=/usr/bin/flatpak run com.synology.SynologyDrive
+      [Install]
+      WantedBy=default.target
+    dest: "{{ user_systemd_base_path }}/synologydrive.service"
+    mode: "0420"
+
+- name: Enable and start systemd unit synologydrive
+  ansible.builtin.systemd:
+    name: synologydrive
+    enabled: true
+    state: started
+    scope: user
+    daemon_reload: true
