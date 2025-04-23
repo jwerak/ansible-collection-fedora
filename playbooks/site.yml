@@ -10,11 +10,16 @@
 
 - name: Setup User config on Fedora machine
 <<<<<<< HEAD
+<<<<<<< HEAD
   hosts: '{{ target | default("all") }}'
 =======
   hosts: '{{target|default("all")}}'
 >>>>>>> 4f812ef (cleanup)
   gather_facts: true
+=======
+  hosts: '{{target|default("all")}}'
+  gather_facts: false
+>>>>>>> c276b79 (remove roles and add new laptop)
   tasks:
     - name: Configure Gnome
       ansible.builtin.import_role:
