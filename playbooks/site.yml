@@ -10,7 +10,7 @@
 
 - name: Setup User config on Fedora machine
   hosts: '{{target|default("all")}}'
-  gather_facts: false
+  gather_facts: true
   tasks:
     - name: Configure Gnome
       ansible.builtin.import_role:
