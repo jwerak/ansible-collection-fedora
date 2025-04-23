@@ -13,3 +13,46 @@
     dest: /home/{{ ansible_user }}/.tmux.conf
     mode: "0644"
     owner: "{{ ansible_user }}"
+
+- name: Apply GNOME Terminal profile
+  community.general.dconf:
+    key: "/org/gnome/Ptyxis/Profiles/{{ gnome_terminal_profile_uuid }}/{{ item.key }}"
+    state: present
+    value: "{{ item.value }}"
+  loop: "{{ gnome_terminal_profile_keys }}"
+  tags:
+    - gnome
+
+- name: Read current /org/gnome/Ptyxis/profile-uuids
+  community.general.dconf:
+    key: /org/gnome/Ptyxis/profile-uuids
+    state: read
+  register: __ptyxis_profile_uuids_result
+  tags:
+    - gnome
+
+- name: Set fact for current UUID list
+  ansible.builtin.set_fact:
+    ptyxis_profile_uuids: "{{ __ptyxis_profile_uuids_result.value | default([]) }}"
+  tags:
+    - gnome
+
+- name: Ensure new profile UUID is in the list
+  ansible.builtin.set_fact:
+    updated_ptyxis_uuids: "{{ ptyxis_profile_uuids + [gnome_terminal_profile_uuid] if gnome_terminal_profile_uuid not in ptyxis_profile_uuids else ptyxis_profile_uuids }}"
+  tags:
+    - gnome
+
+- name: Update /org/gnome/Ptyxis/profile-uuids with new list
+  community.general.dconf:
+    key: /org/gnome/Ptyxis/profile-uuids
+    value: "{{ updated_ptyxis_uuids }}"
+  tags:
+    - gnome
+
+- name: Update /org/gnome/Ptyxis/default-profile-uuid
+  community.general.dconf:
+    key: /org/gnome/Ptyxis/default-profile-uuid
+    value: "'{{ gnome_terminal_profile_uuid }}'"
+  tags:
+    - gnome
