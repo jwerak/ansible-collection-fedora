@@ -1,13 +1,13 @@
 ---
 - name: Create variable for local user systemd base path
   ansible.builtin.set_fact:
-    user_systemd_base_path: '{{ ansible_user_dir }}/.local/share/systemd/user'
+    user_systemd_base_path: "{{ ansible_user_dir }}/.local/share/systemd/user"
 
 - name: Create directory for user systemd unit files
   ansible.builtin.file:
     path: "{{ user_systemd_base_path }}"
     state: directory
-    mode: '0750'
+    mode: "0750"
     owner: "{{ ansible_user_id }}"
     group: "{{ ansible_user_gid }}"
 

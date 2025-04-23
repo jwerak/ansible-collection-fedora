@@ -7,6 +7,8 @@
   tags:
     - rpm
 
+## TODO
+# sudo dnf install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 - name: Create RPM repositories
   ansible.builtin.yum_repository:
     name: "{{ item.name }}"
@@ -20,14 +22,6 @@
   tags:
     - rpm
 
-- name: Enable third party RPM repositories
-  ansible.builtin.command:
-    cmd: dnf config-manager --set-enabled "{{ item }}"
-  loop: "{{ rpm_repositories_enable }}"
-  tags:
-    - rpm
-  changed_when: false
-
 - name: Install RPM Packages
   ansible.builtin.dnf:
     name: "{{ rpm_packages }}"
@@ -35,6 +29,16 @@
     state: present
   tags:
     - rpm
+
+- name: Install Group packages
+  ansible.builtin.dnf:
+    name:
+      - "@multimedia"
+      - "@sound-and-video"
+    install_weak_deps: false
+    exclude:
+      - PackageKit-gstreamer-plugin
+  tags: this
 
 - name: Update all RPM Packages
   ansible.builtin.dnf:
@@ -60,3 +64,10 @@
   retries: 3
   tags:
     - flatpak
+
+- name: Install pip packages as user
+  ansible.builtin.pip:
+    name: "{{ item }}"
+    state: present
+    extra_args: --user
+  loop: "{{ pip_packages }}"

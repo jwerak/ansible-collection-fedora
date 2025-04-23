@@ -6,3 +6,10 @@
   loop: "{{ gnome_dconf_settings }}"
   tags:
     - gnome
+
+- name: Create tmux config
+  ansible.builtin.copy:
+    src: tmux.conf
+    dest: /home/{{ ansible_user }}/.tmux.conf
+    mode: "0644"
+    owner: "{{ ansible_user }}"

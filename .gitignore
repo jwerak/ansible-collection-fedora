@@ -1,3 +1,4 @@
 .swp
 collections/*
 ansible-navigator.log
+.lock

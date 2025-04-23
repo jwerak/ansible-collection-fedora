@@ -1,5 +1,6 @@
 ---
 - name: Enable systemd services
+  become: true
   when: systemd_services is defined
   ansible.builtin.systemd:
     name: "{{ item.name }}"

@@ -46,9 +46,9 @@ sudo virt-install \
     --name test-fedora \
     --memory 2048 \
     --vcpus 2 \
-    --location http://download.fedoraproject.org/pub/fedora/linux/releases/40/Everything/x86_64/os/ \
+    --location http://download.fedoraproject.org/pub/fedora/linux/releases/41/Everything/x86_64/os/ \
     --disk size=20 \
-    --os-variant=fedora40 \
+    --os-variant=fedora-unknown \
     --network default \
     --initrd-inject=`pwd`/ks.cfg \
     --extra-args="inst.ks=file:/ks.cfg"
