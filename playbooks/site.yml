@@ -9,7 +9,11 @@
         name: jwerak.fedora.fedora_apps
 
 - name: Setup User config on Fedora machine
+<<<<<<< HEAD
   hosts: '{{ target | default("all") }}'
+=======
+  hosts: '{{target|default("all")}}'
+>>>>>>> 4f812ef (cleanup)
   gather_facts: true
   tasks:
     - name: Configure Gnome
