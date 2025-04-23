@@ -3,23 +3,19 @@
   hosts: '{{ target | default("all") }}'
   gather_facts: false
   become: true
-  vars_files:
-    - ../default.config.yml
   tasks:
     - name: Install apps
-      ansible.builtin.include_role:
+      ansible.builtin.import_role:
         name: jwerak.fedora.fedora_apps
 
 - name: Setup User config on Fedora machine
-  hosts: '{{ target | default("all") }}'
-  gather_facts: true
-  vars_files:
-    - ../default.config.yml
+  hosts: '{{target|default("all")}}'
+  gather_facts: false
   tasks:
-    - name: Configure Desktop
-      ansible.builtin.include_role:
+    - name: Configure Gnome
+      ansible.builtin.import_role:
         name: jwerak.fedora.fedora_desktop
 
-    - name: Configure Services
-      ansible.builtin.include_role:
+    - name: Configure SystemD user units
+      ansible.builtin.import_role:
         name: jwerak.fedora.fedora_services

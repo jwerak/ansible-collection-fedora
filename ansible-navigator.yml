@@ -66,6 +66,13 @@ ansible-navigator:
     image: quay.io/jwerak/ansible-ee-base:latest
     pull:
       policy: missing
+    volume-mounts:
+      - dest: /usr/share/ansible/collections/ansible_collections/jwerak
+        options: Z
+        src: /home/jveverka/git/ansible_collections/jwerak
+      - dest: /secret
+        options: Z
+        src: /home/jveverka/.secret
 #     volume-mounts:
 #       - src: "/tmp"
 #         dest: "/test1"

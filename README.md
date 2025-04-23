@@ -62,3 +62,18 @@ There is a playbook for testing against fedora, e.g in VM.
 ansible-navigator run ./playbooks/site.yml -i inventory \
 --eev `pwd`:/usr/share/ansible/collections/ansible_collections/jwerak/fedora:Z
 ```
+
+### Notes
+
+Install collection from local directory:
+
+```bash
+## tl;dr
+rm -rf ~/tmp/* && ansible-galaxy collection build --output-path ~/tmp/ ~/git/ansible-collection-fedora && ansible-galaxy collection install ~/tmp/jwerak-fedora-1.0.0.tar.gz --force
+
+# Create a collection bundle
+ansible-galaxy collection build --output-path ~/tmp/ ~/git/ansible-collection-fedora
+
+# Install collection from tar file
+ansible-galaxy collection install ~/tmp/jwerak-fedora-1.0.0.tar.gz
+```
