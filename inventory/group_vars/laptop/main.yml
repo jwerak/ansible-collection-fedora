@@ -14,6 +14,7 @@ rpm_repositories_create:
 rpm_repositories_enable:
   - google-chrome
   - copr:copr.fedorainfracloud.org:phracek:PyCharm
+  - copr:copr.fedorainfracloud.org:atim:starship
   - rpmfusion-nonfree-nvidia-driver
   - rpmfusion-nonfree-steam
 
@@ -38,6 +39,7 @@ rpm_packages:
   - plantuml
   - graphviz
   - poppler-utils
+  - myrepos
   - "@Container Management"
   - "@virtualization"
 
