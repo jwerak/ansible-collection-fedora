@@ -1,4 +1,4 @@
-# Ansible Collection jwerak.fedora_setup
+# Ansible Collection jwerak.fedora
 
 ## Setup
 
