@@ -30,23 +30,6 @@
   tags:
     - rpm
 
-- name: Install Group packages
-  ansible.builtin.dnf:
-    name:
-      - "@multimedia"
-      - "@sound-and-video"
-    install_weak_deps: false
-    exclude:
-      - PackageKit-gstreamer-plugin
-  tags: this
-
-- name: Update all RPM Packages
-  ansible.builtin.dnf:
-    name: "*"
-    state: latest
-  tags:
-    - rpm
-
 - name: Add the flathub flatpak repository remote to the system installation
   community.general.flatpak_remote:
     name: "{{ item.name }}"
