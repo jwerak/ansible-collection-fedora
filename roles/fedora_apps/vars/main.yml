@@ -1,3 +1,5 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # vars file for fedora_apps
+__fedora_apps_confdir: "/var/lib/ansible-config"
+__fedora_apps_firstrun_filepath: "{{ __fedora_apps_confdir }}/firstrun"

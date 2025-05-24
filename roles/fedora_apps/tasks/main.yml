@@ -22,6 +22,31 @@
   tags:
     - rpm
 
+- name: Get stats of firstrun file
+  ansible.builtin.stat:
+    path: "{{ __fedora_apps_firstrun_filepath }}"
+  register: firsrunfile
+
+- name: Install libdnf5 if it is a first run
+  when: firsrunfile.stat.exists is false
+  block:
+    - name: Install python3-libdnf5 packages
+      ansible.builtin.command: dnf install -y python3-libdnf5
+      register: libdnf5_install
+      changed_when: libdnf5_install.stdout is search('Installing')
+
+    - name: Ensure ansible config directory exists
+      ansible.builtin.file:
+        state: directory
+        path: "{{ __fedora_apps_confdir }}"
+        mode: "0755"
+
+    - name: Touch firstrun file
+      ansible.builtin.file:
+        path: "{{ __fedora_apps_firstrun_filepath }}"
+        mode: "0644"
+        state: touch
+
 - name: Install RPM Packages
   ansible.builtin.dnf:
     name: "{{ rpm_packages }}"
