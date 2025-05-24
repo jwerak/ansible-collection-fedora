@@ -1,11 +1,38 @@
 ---
+- name: Check files in system-connections
+  ansible.builtin.find:
+    path: /etc/NetworkManager/system-connections
+  register: __system_connection_folder
+
+- name: Restore system connections
+  when: __system_connection_folder.files | length < 5
+  block:
+    - name: Connect kopia repository
+      become: true
+      # noqa: no-changed-when
+      ansible.builtin.command:
+        argv:
+          - kopia
+          - repository
+          - connect
+          - --password={{ kopia_repository_password }}
+          - webdav
+          - --url={{ kopia_webdav_url }}
+          - --webdav-username={{ kopia_webdav_username }}
+          - --webdav-password={{ kopia_webdav_password }}
+      # no_log: true
+
+    - name: Restore system-connections files
+      become: true
+      # noqa: no-changed-when
+      ansible.builtin.command:
+        cmd: "kopia snapshot restore root@x1:/etc/NetworkManager/system-connections /etc/NetworkManager/system-connections"
+
 - name: Update dconf settings
   community.general.dconf:
     key: "{{ item.key }}"
     value: "{{ item.value }}"
   loop: "{{ gnome_dconf_settings }}"
-  tags:
-    - gnome
 
 - name: Create tmux config
   ansible.builtin.copy:
@@ -56,3 +83,9 @@
     value: "'{{ gnome_terminal_profile_uuid }}'"
   tags:
     - gnome
+
+- name: Configure myrepos tool
+  ansible.builtin.copy:
+    content: "{{ fedora_desktop_myrepos_conf | default('') }}"
+    dest: /home/{{ ansible_user }}/.mrconfig
+    mode: "0644"
