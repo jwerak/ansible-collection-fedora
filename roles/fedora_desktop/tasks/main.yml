@@ -5,7 +5,9 @@
   register: __system_connection_folder
 
 - name: Restore system connections
-  when: __system_connection_folder.files | length < 5
+  when:
+    - kopia_restore
+    - __system_connection_folder.files | length < 5
   block:
     - name: Connect kopia repository
       become: true
