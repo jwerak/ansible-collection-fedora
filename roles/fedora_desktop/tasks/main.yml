@@ -1,4 +1,9 @@
 ---
+- name: Get user data
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+  register: __laptop_user
+
 - name: Check files in system-connections
   ansible.builtin.find:
     path: /etc/NetworkManager/system-connections
@@ -22,7 +27,7 @@
           - --url={{ kopia_webdav_url }}
           - --webdav-username={{ kopia_webdav_username }}
           - --webdav-password={{ kopia_webdav_password }}
-      # no_log: true
+      no_log: true
 
     - name: Restore system-connections files
       become: true
@@ -39,9 +44,16 @@
 - name: Create tmux config
   ansible.builtin.copy:
     src: tmux.conf
-    dest: /home/{{ ansible_user }}/.tmux.conf
+    dest: "{{ __laptop_user.home }}/.tmux.conf"
     mode: "0644"
-    owner: "{{ ansible_user }}"
+    owner: "{{ __laptop_user.name }}"
+
+- name: Create .bashrc
+  ansible.builtin.copy:
+    content: "{{ fedora_desktop_bashrc_filecontent }}"
+    dest: "{{ __laptop_user.home }}/.bashrc"
+    mode: "0644"
+    owner: "{{ __laptop_user.name }}"
 
 - name: Apply GNOME Terminal profile
   community.general.dconf:
@@ -89,5 +101,5 @@
 - name: Configure myrepos tool
   ansible.builtin.copy:
     content: "{{ fedora_desktop_myrepos_conf | default('') }}"
-    dest: /home/{{ ansible_user }}/.mrconfig
+    dest: "{{ __laptop_user.home }}/.mrconfig"
     mode: "0644"

@@ -1,0 +1,55 @@
+---
+- name: Get user data
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+  register: __laptop_user
+  tags:
+    - test
+
+- name: Download bitwarden cli
+  ansible.builtin.get_url:
+    url: "{{ bitwarden_download_url }}"
+    dest: /tmp/bw.zip
+    mode: "0644"
+
+- name: Ensure local bin is present
+  ansible.builtin.file:
+    dest: "{{ __laptop_user.home }}/.local/bin/"
+    state: directory
+    mode: "0755"
+
+- name: Unarchive bitwarden
+  ansible.builtin.unarchive:
+    src: /tmp/bw.zip
+    dest: "{{ __laptop_user.home }}/.local/bin/"
+    remote_src: true
+
+- name: Create secrets dir
+  ansible.builtin.file:
+    path: "{{ bitwarden_secret_dir }}"
+    state: directory
+    mode: "0700"
+    owner: "{{ __laptop_user.name }}"
+  tags:
+    - test
+
+- name: Create bitwarden password file
+  ansible.builtin.copy:
+    content: "{{ bitwarden_password }}"
+    dest: "{{ bitwarden_secret_dir }}/bw.pwd"
+    mode: "0644"
+    owner: "{{ __laptop_user.name }}"
+  tags:
+    - test
+
+- name: Create bitwarden env file
+  ansible.builtin.copy:
+    content: |
+      if [[ -z $BW_SESSION ]]; then
+        export BW_SESSION=`bw unlock --passwordfile {{ bitwarden_secret_dir }}/bw.pwd --raw`
+      fi
+    dest: "{{ bitwarden_secret_dir }}/bw.env"
+    mode: "0644"
+    owner: "{{ __laptop_user.name }}"
+  tags:
+    - test

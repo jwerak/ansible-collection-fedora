@@ -1,0 +1,5 @@
+#SPDX-License-Identifier: MIT-0
+---
+# defaults file for bitwarden
+bitwarden_download_url: "https://bitwarden.com/download/?app=cli&platform=linux"
+bitwarden_secret_dir: "{{ __laptop_user.home }}/.secret"
