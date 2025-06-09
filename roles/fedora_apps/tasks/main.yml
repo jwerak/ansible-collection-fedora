@@ -1,25 +1,4 @@
 ---
-- name: Import rpm keys
-  ansible.builtin.rpm_key:
-    state: present
-    key: "{{ item }}"
-  loop: "{{ rpm_keys_import }}"
-  tags:
-    - rpm
-
-- name: Create RPM repositories
-  ansible.builtin.yum_repository:
-    name: "{{ item.name }}"
-    description: "{{ item.description }}"
-    baseurl: "{{ item.baseurl }}"
-    enabled: "{{ item.enabled }}"
-    gpgcheck: "{{ item.gpgcheck }}"
-    gpgkey: "{{ item.gpgkey }}"
-    file: "{{ item.file | default(omit) }}"
-  loop: "{{ rpm_repositories_create }}"
-  tags:
-    - rpm
-
 - name: Get stats of firstrun file
   ansible.builtin.stat:
     path: "{{ __fedora_apps_firstrun_filepath }}"
@@ -44,6 +23,27 @@
         path: "{{ __fedora_apps_firstrun_filepath }}"
         mode: "0644"
         state: touch
+
+- name: Import rpm keys
+  ansible.builtin.rpm_key:
+    state: present
+    key: "{{ item }}"
+  loop: "{{ rpm_keys_import }}"
+  tags:
+    - rpm
+
+- name: Create RPM repositories
+  ansible.builtin.yum_repository:
+    name: "{{ item.name }}"
+    description: "{{ item.description | default(omit) }}"
+    baseurl: "{{ item.baseurl }}"
+    enabled: "{{ item.enabled }}"
+    gpgcheck: "{{ item.gpgcheck }}"
+    gpgkey: "{{ item.gpgkey }}"
+    file: "{{ item.file | default(omit) }}"
+  loop: "{{ rpm_repositories_create }}"
+  tags:
+    - rpm
 
 - name: Install RPM Packages
   ansible.builtin.dnf:
