@@ -72,15 +72,21 @@
   tags:
     - gnome
 
-- name: Set fact for current UUID list
+- name: Set fact for current UUID list (Parsed as actual list)
   ansible.builtin.set_fact:
-    ptyxis_profile_uuids: "{{ __ptyxis_profile_uuids_result.value | default([]) }}"
+    ptyxis_profile_uuids: >-
+      {{
+        (__ptyxis_profile_uuids_result.value
+        | default('[]')
+        | regex_replace('^@as\s+', ''))
+        | from_yaml
+      }}
   tags:
     - gnome
 
 - name: Ensure new profile UUID is in the list
   ansible.builtin.set_fact:
-    updated_ptyxis_uuids: "{{ ptyxis_profile_uuids + [gnome_terminal_profile_uuid] if gnome_terminal_profile_uuid not in ptyxis_profile_uuids else ptyxis_profile_uuids }}"
+    updated_ptyxis_uuids: "{{ ptyxis_profile_uuids | union([gnome_terminal_profile_uuid]) }}"
   tags:
     - gnome
 

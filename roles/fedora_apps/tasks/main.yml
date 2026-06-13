@@ -39,7 +39,7 @@
     baseurl: "{{ item.baseurl }}"
     enabled: "{{ item.enabled }}"
     gpgcheck: "{{ item.gpgcheck }}"
-    gpgkey: "{{ item.gpgkey }}"
+    gpgkey: "{{ item.gpgkey | default(omit) }}"
     file: "{{ item.file | default(omit) }}"
   loop: "{{ rpm_repositories_create }}"
   tags:
@@ -63,10 +63,20 @@
   tags:
     - flatpak
 
-- name: Install flatpak packages
+- name: Install Flathub packages (Optimized Batch)
   community.general.flatpak:
-    name: "{{ flatpak_packages }}"
+    name: "{{ flathub_packages }}"
+    remote: flathub
     state: present
+  retries: 3
+  tags:
+    - flatpak
+
+- name: Install Fedora packages headlessly via DBus wrapper
+  ansible.builtin.shell: "dbus-run-session flatpak install --system --noninteractive -y fedora {{ item }}"
+  loop: "{{ fedora_packages }}"
+  register: fedora_install_res
+  changed_when: "'Installing' in fedora_install_res.stdout"
   retries: 3
   tags:
     - flatpak

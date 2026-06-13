@@ -32,24 +32,3 @@
     owner: "{{ __laptop_user.name }}"
   tags:
     - test
-
-- name: Create bitwarden password file
-  ansible.builtin.copy:
-    content: "{{ bitwarden_password }}"
-    dest: "{{ bitwarden_secret_dir }}/bw.pwd"
-    mode: "0644"
-    owner: "{{ __laptop_user.name }}"
-  tags:
-    - test
-
-- name: Create bitwarden env file
-  ansible.builtin.copy:
-    content: |
-      if [[ -z $BW_SESSION ]]; then
-        export BW_SESSION=`bw unlock --passwordfile {{ bitwarden_secret_dir }}/bw.pwd --raw`
-      fi
-    dest: "{{ bitwarden_secret_dir }}/bw.env"
-    mode: "0644"
-    owner: "{{ __laptop_user.name }}"
-  tags:
-    - test

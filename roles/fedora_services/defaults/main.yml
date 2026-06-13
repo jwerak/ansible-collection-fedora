@@ -1,3 +1,5 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # defaults file for fedora_services
+fedora_services_synology_local_dirs:
+  - "{{ __laptop_user.home }}/Documents"
