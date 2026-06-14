@@ -55,6 +55,14 @@
     mode: "0644"
     owner: "{{ __laptop_user.name }}"
 
+- name: Configure starship if defined
+  when: fedora_desktop_starship_config is defined
+  ansible.builtin.copy:
+    content: "{{ fedora_desktop_starship_config }}"
+    dest: "{{ __laptop_user.home }}/.config/starship.toml"
+    mode: "0644"
+    owner: "{{ __laptop_user.name }}"
+
 - name: Apply GNOME Terminal profile
   community.general.dconf:
     key: "/org/gnome/Ptyxis/Profiles/{{ gnome_terminal_profile_uuid }}/{{ item.key }}"
