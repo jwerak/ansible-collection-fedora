@@ -24,7 +24,7 @@
   ansible.builtin.copy:
     content: |
       [Service]
-      Type=oneshot
+      Type=simple
       RemainAfterExit=true
       StandardOutput=journal
       ExecStartPre=/usr/bin/sleep 2s
