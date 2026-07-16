@@ -3,6 +3,8 @@
   ansible.builtin.user:
     name: "{{ ansible_user }}"
   register: __laptop_user
+  tags: always
+
 
 - name: Check files in system-connections
   ansible.builtin.find:
@@ -117,3 +119,49 @@
     content: "{{ fedora_desktop_myrepos_conf | default('') }}"
     dest: "{{ __laptop_user.home }}/.mrconfig"
     mode: "0644"
+
+- name: Check if Clipboard Indicator extension is installed
+  ansible.builtin.stat:
+    path: "{{ __laptop_user.home }}/.local/share/gnome-shell/extensions/clipboard-indicator@tudmotu.com/extension.js"
+  register: __clipboard_indicator_installed
+  tags:
+    - gnome
+    - extensions
+
+- name: Apply Wayland image copy patch to Clipboard Indicator extension
+  when: __clipboard_indicator_installed.stat.exists
+  ansible.builtin.replace:
+    path: "{{ __laptop_user.home }}/.local/share/gnome-shell/extensions/clipboard-indicator@tudmotu.com/extension.js"
+    regexp: 'for \(let type of mimetypes\) \{\n\s*let result = await new Promise\(resolve => this\.extension\.clipboard\.get_content\(CLIPBOARD_TYPE, type, \(clipBoard, bytes\) => \{'
+    replace: |
+        let queryTypes = mimetypes;
+                try {
+                    const available = (this.selection && typeof this.selection.get_mimetypes === 'function')
+                        ? (this.selection.get_mimetypes(Meta.SelectionType.SELECTION_CLIPBOARD) || [])
+                        : [];
+
+                    if (available.length > 0) {
+                        queryTypes = mimetypes.filter(type => available.includes(type));
+                        if (queryTypes.length === 0) {
+                            queryTypes = mimetypes;
+                        } else {
+                            queryTypes.sort((a, b) => {
+                                const aIsImage = a.startsWith('image/');
+                                const bIsImage = b.startsWith('image/');
+                                if (aIsImage && !bIsImage) return -1;
+                                if (!aIsImage && bIsImage) return 1;
+                                return 0;
+                            });
+                        }
+                    }
+                } catch (e) {
+                    console.error('Clipboard Indicator: failed to filter clipboard mimetypes', e);
+                    queryTypes = mimetypes;
+                }
+
+                for (let type of queryTypes) {
+                     let result = await new Promise(resolve => this.extension.clipboard.get_content(CLIPBOARD_TYPE, type, (clipBoard, bytes) => {
+  tags:
+    - gnome
+    - extensions
+
