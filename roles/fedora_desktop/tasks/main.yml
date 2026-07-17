@@ -65,6 +65,22 @@
     mode: "0644"
     owner: "{{ __laptop_user.name }}"
 
+- name: Create glow configuration directory
+  when: fedora_desktop_glow_config is defined
+  ansible.builtin.file:
+    path: "{{ __laptop_user.home }}/.config/glow"
+    state: directory
+    mode: "0755"
+    owner: "{{ __laptop_user.name }}"
+
+- name: Configure glow if defined
+  when: fedora_desktop_glow_config is defined
+  ansible.builtin.copy:
+    content: "{{ fedora_desktop_glow_config }}"
+    dest: "{{ __laptop_user.home }}/.config/glow/glow.yml"
+    mode: "0644"
+    owner: "{{ __laptop_user.name }}"
+
 - name: Apply GNOME Terminal profile
   community.general.dconf:
     key: "/org/gnome/Ptyxis/Profiles/{{ gnome_terminal_profile_uuid }}/{{ item.key }}"
