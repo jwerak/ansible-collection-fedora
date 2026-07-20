@@ -23,16 +23,29 @@
 - name: Create user systemd unit named synologydrive
   ansible.builtin.copy:
     content: |
+      [Unit]
+      Description=Synology Drive Client
+      After=graphical-session.target
+      PartOf=graphical-session.target
+
       [Service]
       Type=simple
-      RemainAfterExit=true
       StandardOutput=journal
-      ExecStartPre=/usr/bin/sleep 2s
-      ExecStart=/usr/bin/flatpak run com.synology.SynologyDrive
+      ExecStartPre=/usr/bin/rm -f %h/.SynologyDrive/daemon.pid %h/.SynologyDrive/ui.pid %h/.SynologyDrive/daemon.sock %h/.SynologyDrive/ui.sock
+      ExecStart=/usr/bin/bash -c '\
+        /usr/bin/flatpak run com.synology.SynologyDrive; \
+        /usr/bin/sleep 5; \
+        while /usr/bin/flatpak ps | /usr/bin/grep -q com.synology.SynologyDrive; do \
+          /usr/bin/sleep 5; \
+        done'
+      ExecStop=/usr/bin/flatpak kill com.synology.SynologyDrive
+      Restart=always
+      RestartSec=5s
+
       [Install]
-      WantedBy=default.target
+      WantedBy=graphical-session.target
     dest: "{{ user_systemd_base_path }}/synologydrive.service"
-    mode: "0420"
+    mode: "0644"
 
 - name: Enable and start systemd unit synologydrive
   ansible.builtin.systemd:
