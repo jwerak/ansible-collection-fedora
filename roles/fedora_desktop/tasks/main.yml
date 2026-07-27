@@ -181,3 +181,49 @@
     - gnome
     - extensions
 
+- name: Create desktop application directory
+  ansible.builtin.file:
+    path: "{{ __laptop_user.home }}/.local/share/applications"
+    state: directory
+    mode: "0755"
+    owner: "{{ __laptop_user.name }}"
+  tags:
+    - gnome
+
+- name: Create Antigravity IDE desktop entry
+  ansible.builtin.copy:
+    dest: "{{ __laptop_user.home }}/.local/share/applications/antigravity-ide.desktop"
+    mode: "0644"
+    owner: "{{ __laptop_user.name }}"
+    content: |
+      [Desktop Entry]
+      Name=Antigravity IDE
+      Comment=Antigravity Development Environment
+      Exec=/usr/local/bin/antigravity-ide %F
+      Icon=/opt/antigravity-ide/resources/app/resources/linux/code.png
+      Terminal=false
+      Type=Application
+      Categories=Development;IDE;
+      StartupWMClass=antigravity-ide
+  tags:
+    - gnome
+
+- name: Create Antigravity Agent desktop entry
+  ansible.builtin.copy:
+    dest: "{{ __laptop_user.home }}/.local/share/applications/antigravity.desktop"
+    mode: "0644"
+    owner: "{{ __laptop_user.name }}"
+    content: |
+      [Desktop Entry]
+      Name=Antigravity
+      Comment=Antigravity Agent
+      Exec=/usr/local/bin/antigravity
+      Icon=utilities-terminal
+      Terminal=false
+      Type=Application
+      Categories=Development;Utility;
+      StartupWMClass=Antigravity
+  tags:
+    - gnome
+
+
