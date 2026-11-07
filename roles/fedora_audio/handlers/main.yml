@@ -8,3 +8,10 @@
     name: "{{ fedora_audio_unit_name }}"
     state: restarted
     daemon_reload: true
+
+- name: Restart easyeffects preset
+  ansible.builtin.systemd:
+    name: "{{ fedora_audio_easyeffects_unit }}"
+    state: restarted
+    scope: user
+    daemon_reload: true

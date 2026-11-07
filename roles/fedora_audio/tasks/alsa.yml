@@ -1,0 +1,52 @@
+---
+- name: alsa | Ensure alsa-utils is installed
+  become: true
+  ansible.builtin.dnf:
+    name: alsa-utils
+    state: present
+  tags:
+    - audio
+
+- name: alsa | List simple mixer controls exposed by the sound card
+  ansible.builtin.command:
+    cmd: "amixer -c {{ fedora_audio_card }} scontrols"
+  register: __fedora_audio_scontrols
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  tags:
+    - audio
+
+- name: alsa | Keep only the controls this hardware actually exposes
+  ansible.builtin.set_fact:
+    __fedora_audio_controls: >-
+      {{
+        fedora_audio_mixer_controls
+        | selectattr('name', 'in', __fedora_audio_scontrols.stdout)
+        | list
+      }}
+  tags:
+    - audio
+
+- name: alsa | Configure persistent ALSA mixer controls
+  become: true
+  when: __fedora_audio_controls | length > 0
+  tags:
+    - audio
+  block:
+    - name: alsa | Install systemd unit reapplying mixer controls at boot
+      ansible.builtin.template:
+        src: alsa-mixer-restore.service.j2
+        dest: "/etc/systemd/system/{{ fedora_audio_unit_name }}"
+        owner: root
+        group: root
+        mode: "0644"
+        backup: true
+      notify: Restart alsa mixer restore
+
+    - name: alsa | Enable and start the mixer restore unit
+      ansible.builtin.systemd:
+        name: "{{ fedora_audio_unit_name }}"
+        enabled: true
+        state: started
+        daemon_reload: true

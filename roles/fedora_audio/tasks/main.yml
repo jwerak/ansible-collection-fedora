@@ -1,52 +1,15 @@
 ---
-- name: Ensure alsa-utils is installed
-  become: true
-  ansible.builtin.dnf:
-    name: alsa-utils
-    state: present
+# These are dynamic includes, so they need their own tags: tags on the tasks
+# they pull in are not visible until the include has already been evaluated.
+- name: Import ALSA mixer control tasks
+  ansible.builtin.include_tasks:
+    file: alsa.yml
   tags:
     - audio
 
-- name: List simple mixer controls exposed by the sound card
-  ansible.builtin.command:
-    cmd: "amixer -c {{ fedora_audio_card }} scontrols"
-  register: __fedora_audio_scontrols
-  changed_when: false
-  failed_when: false
-  check_mode: false
+- name: Import EasyEffects tasks
+  ansible.builtin.include_tasks:
+    file: easyeffects.yml
+  when: fedora_audio_easyeffects_enabled | bool
   tags:
     - audio
-
-- name: Keep only the controls this hardware actually exposes
-  ansible.builtin.set_fact:
-    __fedora_audio_controls: >-
-      {{
-        fedora_audio_mixer_controls
-        | selectattr('name', 'in', __fedora_audio_scontrols.stdout)
-        | list
-      }}
-  tags:
-    - audio
-
-- name: Configure persistent ALSA mixer controls
-  become: true
-  when: __fedora_audio_controls | length > 0
-  tags:
-    - audio
-  block:
-    - name: Install systemd unit reapplying mixer controls at boot
-      ansible.builtin.template:
-        src: alsa-mixer-restore.service.j2
-        dest: "/etc/systemd/system/{{ fedora_audio_unit_name }}"
-        owner: root
-        group: root
-        mode: "0644"
-        backup: true
-      notify: Restart alsa mixer restore
-
-    - name: Enable and start the mixer restore unit
-      ansible.builtin.systemd:
-        name: "{{ fedora_audio_unit_name }}"
-        enabled: true
-        state: started
-        daemon_reload: true

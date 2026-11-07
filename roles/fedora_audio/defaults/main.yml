@@ -2,6 +2,8 @@
 ---
 # defaults file for fedora_audio
 
+## ALSA mixer controls -------------------------------------------------------
+
 # ALSA card id as listed in /proc/asound/cards, e.g. "sofhdadsp".
 fedora_audio_card: sofhdadsp
 
@@ -13,5 +15,16 @@ fedora_audio_card: sofhdadsp
 # list is safe to define for a whole group of mixed machines.
 fedora_audio_mixer_controls: []
 
-# Name of the generated systemd unit.
+# Name of the generated system-wide systemd unit.
 fedora_audio_unit_name: alsa-mixer-restore.service
+
+## EasyEffects ---------------------------------------------------------------
+
+# Install EasyEffects and deploy the output preset plus its user service.
+fedora_audio_easyeffects_enabled: false
+
+# Preset base name. A matching <name>.json must exist in the role's files/.
+fedora_audio_easyeffects_preset: X1Carbon-Speakers
+
+# Name of the generated systemd *user* unit.
+fedora_audio_easyeffects_unit: easyeffects-preset.service

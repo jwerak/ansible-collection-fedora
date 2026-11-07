@@ -1,0 +1,19 @@
+{{ ansible_managed | comment }}
+
+[Unit]
+Description=EasyEffects service with the {{ fedora_audio_easyeffects_preset }} preset loaded
+Documentation=https://github.com/wwmm/easyeffects
+After=pipewire.service wireplumber.service
+Wants=pipewire.service wireplumber.service
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/easyeffects --service-mode
+ExecStartPost=/bin/sh -c 'for _ in $(seq 1 30); do /usr/bin/pw-cli ls Node 2>/dev/null | grep -q easyeffects_sink && break; sleep 1; done; sleep 2; /usr/bin/easyeffects -l {{ fedora_audio_easyeffects_preset }}'
+TimeoutStartSec=90
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,102 @@
+---
+- name: easyeffects | Install EasyEffects
+  become: true
+  ansible.builtin.dnf:
+    name: easyeffects
+    state: present
+  tags:
+    - audio
+
+- name: easyeffects | Create variable for local user systemd base path
+  ansible.builtin.set_fact:
+    user_systemd_base_path: "{{ ansible_facts['user_dir'] }}/.local/share/systemd/user"
+  tags:
+    - audio
+
+- name: easyeffects | Create preset and unit directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0750"
+    owner: "{{ ansible_facts['user_id'] }}"
+    group: "{{ ansible_facts['user_gid'] }}"
+  loop:
+    - "{{ user_systemd_base_path }}"
+    - "{{ ansible_facts['user_dir'] }}/.local/share/easyeffects/output"
+  tags:
+    - audio
+
+- name: easyeffects | Deploy the output preset
+  ansible.builtin.copy:
+    src: "{{ fedora_audio_easyeffects_preset }}.json"
+    dest: >-
+      {{ ansible_facts['user_dir'] }}/.local/share/easyeffects/output/{{
+      fedora_audio_easyeffects_preset }}.json
+    owner: "{{ ansible_facts['user_id'] }}"
+    group: "{{ ansible_facts['user_gid'] }}"
+    mode: "0644"
+    backup: true
+  notify: Restart easyeffects preset
+  tags:
+    - audio
+
+# EasyEffects restores the plugin chain from its own db but not the parameter
+# values, which live only in the preset file. Without an explicit load at
+# startup the chain comes up flat, which looks identical to success unless the
+# values are checked.
+- name: easyeffects | Install the user service that loads the preset
+  ansible.builtin.template:
+    src: easyeffects-preset.service.j2
+    dest: "{{ user_systemd_base_path }}/{{ fedora_audio_easyeffects_unit }}"
+    owner: "{{ ansible_facts['user_id'] }}"
+    group: "{{ ansible_facts['user_gid'] }}"
+    mode: "0644"
+    backup: true
+  notify: Restart easyeffects preset
+  tags:
+    - audio
+
+- name: easyeffects | Remove unmanaged unit copy from ~/.config
+  ansible.builtin.file:
+    path: >-
+      {{ ansible_facts['user_dir'] }}/.config/systemd/user/{{
+      fedora_audio_easyeffects_unit }}
+    state: absent
+  tags:
+    - audio
+
+# `systemctl --user enable` always writes the symlink under ~/.config, but it
+# points at wherever the unit lived when it was enabled. If the unit has since
+# moved, that link dangles and `is-enabled` still reports "enabled", so the
+# enable task below would not repair it on its own.
+- name: easyeffects | Stat the enable symlink
+  ansible.builtin.stat:
+    path: >-
+      {{ ansible_facts['user_dir'] }}/.config/systemd/user/default.target.wants/{{
+      fedora_audio_easyeffects_unit }}
+    follow: false
+  register: __fedora_audio_ee_wants
+  tags:
+    - audio
+
+- name: easyeffects | Remove enable symlink left behind by an older unit location
+  ansible.builtin.file:
+    path: >-
+      {{ ansible_facts['user_dir'] }}/.config/systemd/user/default.target.wants/{{
+      fedora_audio_easyeffects_unit }}
+    state: absent
+  when:
+    - __fedora_audio_ee_wants.stat.islnk | default(false)
+    - user_systemd_base_path not in (__fedora_audio_ee_wants.stat.lnk_target | default(''))
+  tags:
+    - audio
+
+- name: easyeffects | Enable and start the user service
+  ansible.builtin.systemd:
+    name: "{{ fedora_audio_easyeffects_unit }}"
+    enabled: true
+    state: started
+    scope: user
+    daemon_reload: true
+  tags:
+    - audio
