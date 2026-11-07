@@ -1,0 +1,18 @@
+{{ ansible_managed | comment }}
+
+[Unit]
+Description=Reapply ALSA mixer controls not preserved by alsactl
+Documentation=man:amixer(1)
+After=alsa-restore.service
+Wants=sound.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStartPre=/bin/sh -c 'for _ in $(seq 1 30); do [ -d /proc/asound/{{ fedora_audio_card }} ] && exit 0; sleep 1; done; exit 1'
+{% for control in __fedora_audio_controls %}
+ExecStart=/usr/bin/amixer -q -c {{ fedora_audio_card }} sset '{{ control.name }}' {{ control.value }}
+{% endfor %}
+
+[Install]
+WantedBy=multi-user.target

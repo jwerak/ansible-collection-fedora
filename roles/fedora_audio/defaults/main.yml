@@ -1,0 +1,17 @@
+#SPDX-License-Identifier: MIT-0
+---
+# defaults file for fedora_audio
+
+# ALSA card id as listed in /proc/asound/cards, e.g. "sofhdadsp".
+fedora_audio_card: sofhdadsp
+
+# Mixer controls reapplied on every boot by the generated systemd unit.
+# Each item needs:
+#   name  - exact amixer simple-control name (see `amixer -c <card> scontrols`)
+#   value - argument passed to `amixer sset`, e.g. "on", "off", "100%"
+# Controls absent on the running hardware are skipped automatically, so this
+# list is safe to define for a whole group of mixed machines.
+fedora_audio_mixer_controls: []
+
+# Name of the generated systemd unit.
+fedora_audio_unit_name: alsa-mixer-restore.service
